@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   View
 } from 'react-native';
 
 import XDate from 'xdate';
 import dateutils from '../dateutils';
-import {xdateToData, parseDate} from '../interface';
+import { xdateToData, parseDate } from '../interface';
 import styleConstructor from './style';
 import Day from './day/basic';
 import UnitDay from './day/interactive';
@@ -33,7 +33,7 @@ class Calendar extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const current= parseDate(nextProps.current);
+    const current = parseDate(nextProps.current);
     if (current && current.toString('yyyy MM') !== this.state.currentMonth.toString('yyyy MM')) {
       this.setState({
         currentMonth: current.clone()
@@ -61,13 +61,11 @@ class Calendar extends Component {
   }
 
   pressDay(day) {
-    const minDate = parseDate(this.props.minDate);
-    const maxDate = parseDate(this.props.maxDate);
-    if (!this.props.disableMonthChange && !(minDate && !dateutils.isGTE(day, minDate)) && !(maxDate && !dateutils.isLTE(day, maxDate))) {
+    if (!this.props.disableMonthChange) {
       this.updateMonth(day);
-      if (this.props.onDayPress) {
-        this.props.onDayPress(xdateToData(day));
-      }
+    }
+    if (this.props.onDayPress) {
+      this.props.onDayPress(xdateToData(day));
     }
   }
 
@@ -104,25 +102,25 @@ class Calendar extends Component {
     let dayComp;
     if (!dateutils.sameMonth(day, this.state.currentMonth) && this.props.hideExtraDays) {
       if (this.props.markingType === 'interactive') {
-        dayComp = (<View key={id} style={{flex: 1}}/>);
+        dayComp = (<View key={id} style={{ flex: 1 }} />);
       } else {
-        dayComp = (<View key={id} style={{width: 32}}/>);
+        dayComp = (<View key={id} style={{ width: 32 }} />);
       }
     } else {
       const DayComp = this.props.markingType === 'interactive' ? UnitDay : Day;
       const markingExists = this.props.markedDates ? true : false;
       dayComp = (
         <DayComp
-            key={id}
-            state={state}
-            theme={this.props.theme}
-            onPress={this.pressDay.bind(this, day)}
-            marked={this.getDateMarking(day)}
-            markingExists={markingExists}
-          >
-            {day.getDate()}
-          </DayComp>
-        );
+          key={id}
+          state={state}
+          theme={this.props.theme}
+          onPress={this.pressDay.bind(this, day)}
+          marked={this.getDateMarking(day)}
+          markingExists={markingExists}
+        >
+          {day.getDate()}
+        </DayComp>
+      );
     }
     return dayComp;
   }
@@ -159,7 +157,7 @@ class Calendar extends Component {
     if (current) {
       const lastMonthOfDay = current.clone().addMonths(1, true).setDate(1).addDays(-1).toString('yyyy-MM-dd');
       if (this.props.displayLoadingIndicator &&
-          !(this.props.markedDates && this.props.markedDates[lastMonthOfDay])) {
+        !(this.props.markedDates && this.props.markedDates[lastMonthOfDay])) {
         indicator = true;
       }
     }
