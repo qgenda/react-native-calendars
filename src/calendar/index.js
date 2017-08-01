@@ -93,6 +93,9 @@ class Calendar extends Component {
     let isToday = false;
     if (this.isSelected(day)) {
       state = 'selected';
+      if (dateutils.sameDate(day, XDate())) {
+        isToday = true;
+      }
     } else if ((minDate && !dateutils.isGTE(day, minDate)) || (maxDate && !dateutils.isLTE(day, maxDate))) {
       state = 'disabled';
     } else if (!dateutils.sameMonth(day, this.state.currentMonth)) {
