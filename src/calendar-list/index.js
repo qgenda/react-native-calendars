@@ -50,6 +50,7 @@ class CalendarList extends Component {
   }
 
   renderCalendar(row) {
+    console.log("RENDER ROW", row);
     if (row.getTime) {
       return (
         <Calendar
