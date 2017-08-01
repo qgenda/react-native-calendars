@@ -90,6 +90,7 @@ class Calendar extends Component {
     const minDate = parseDate(this.props.minDate);
     const maxDate = parseDate(this.props.maxDate);
     let state = '';
+    let isToday = false;
     if (this.isSelected(day)) {
       state = 'selected';
     } else if ((minDate && !dateutils.isGTE(day, minDate)) || (maxDate && !dateutils.isLTE(day, maxDate))) {
@@ -98,6 +99,7 @@ class Calendar extends Component {
       state = 'disabled';
     } else if (dateutils.sameDate(day, XDate())) {
       state = 'today';
+      isToday = true;
     }
     let dayComp;
     if (!dateutils.sameMonth(day, this.state.currentMonth) && this.props.hideExtraDays) {
@@ -117,6 +119,7 @@ class Calendar extends Component {
           onPress={this.pressDay.bind(this, day)}
           marked={this.getDateMarking(day)}
           markingExists={markingExists}
+          isToday={isToday}
         >
           {day.getDate()}
         </DayComp>
