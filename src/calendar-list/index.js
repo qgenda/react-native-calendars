@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   ListView,
   View,
@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import XDate from 'xdate';
-import {xdateToData, parseDate} from '../interface';
+import { xdateToData, parseDate } from '../interface';
 import styleConstructor from './style';
 import dateutils from '../dateutils';
 import Calendar from '../calendar';
@@ -55,7 +55,7 @@ class CalendarList extends Component {
         <Calendar
           theme={this.props.theme}
           selected={this.props.selected}
-          style={[{height: calendarHeight}, this.style.calendar]}
+          style={[{ height: calendarHeight }, this.style.calendar]}
           current={row}
           hideArrows
           hideExtraDays={this.props.hideExtraDays === undefined ? true : this.props.hideExtraDays}
@@ -71,7 +71,7 @@ class CalendarList extends Component {
     } else {
       const text = row.toString();
       return (
-        <View style={[{height: calendarHeight}, this.style.placeholder]}>
+        <View style={[{ height: calendarHeight }, this.style.placeholder]}>
           <Text style={this.style.placeholderText}>{text}</Text>
         </View>
       );
@@ -91,7 +91,7 @@ class CalendarList extends Component {
         break;
       }
     }
-    this.listView.scrollTo({x: 0, y: scrollAmount, animated});
+    this.listView.scrollTo({ x: 0, y: scrollAmount, animated });
   }
 
   scrollToMonth(m) {
@@ -102,7 +102,7 @@ class CalendarList extends Component {
     const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
     //console.log(month, this.state.openDate);
     //console.log(scrollAmount, diffMonths);
-    this.listView.scrollTo({x: 0, y: scrollAmount, animated: false});
+    this.listView.scrollTo({ x: 0, y: scrollAmount, animated: false });
   }
 
   componentDidMount() {
@@ -112,8 +112,10 @@ class CalendarList extends Component {
   }
 
   componentWillReceiveProps(props) {
-    if (props.current && this.props.current && props.current.getTime() !== this.props.current.getTime()) {
-      this.scrollToMonth(props.current);
+    const current = parseDate(this.props.current);
+    const nextCurrent = parseDate(props.current);
+    if (nextCurrent && current && nextCurrent.getTime() !== current.getTime()) {
+      this.scrollToMonth(nextCurrent);
     }
 
     const rowclone = this.state.rows;
@@ -233,8 +235,8 @@ class CalendarList extends Component {
         initialListSize={this.pastScrollRange * this.futureScrollRange + 1}
         dataSource={this.state.dataSource}
         scrollRenderAheadDistance={calendarHeight}
-                //snapToAlignment='start'
-                //snapToInterval={calendarHeight}
+        //snapToAlignment='start'
+        //snapToInterval={calendarHeight}
         pageSize={1}
         removeClippedSubviews
         onChangeVisibleRows={this.visibleRowsChange.bind(this)}
