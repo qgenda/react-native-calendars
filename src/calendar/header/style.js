@@ -13,7 +13,7 @@ export default function(theme={}) {
     },
     monthText: {
       fontSize: 16,
-      fontWeight: '300',
+      fontWeight: appStyle.monthFontWeight || '300',
       color: appStyle.monthTextColor,
       margin: 10
     },

@@ -12,10 +12,13 @@ import styleConstructor from './style';
 import dateutils from '../dateutils';
 import Calendar from '../calendar';
 
-const calendarHeight = 360;
+let calendarHeight = 360;
 class CalendarList extends Component {
   constructor(props) {
     super(props);
+    if(props.calendarHeight) {
+      calendarHeight = props.calendarHeight;
+    }
     this.pastScrollRange = props.pastScrollRange === undefined ? 50 : props.pastScrollRange;
     this.futureScrollRange = props.futureScrollRange === undefined ? 50 : props.futureScrollRange;
     this.style = styleConstructor(props.theme);
