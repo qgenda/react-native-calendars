@@ -97,7 +97,7 @@ class CalendarList extends Component {
     this.listView.scrollTo({ x: 0, y: scrollAmount, animated });
   }
 
-  scrollToMonth(m) {
+  scrollToMonth(m, animated) {
     const month = parseDate(m);
     const scrollTo = month || this.state.openDate;
     let diffMonths = this.state.openDate.diffMonths(scrollTo);
@@ -105,7 +105,7 @@ class CalendarList extends Component {
     const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
     //console.log(month, this.state.openDate);
     //console.log(scrollAmount, diffMonths);
-    this.listView.scrollTo({ x: 0, y: scrollAmount, animated: false });
+    this.listView.scrollTo({ x: 0, y: scrollAmount, animated });
   }
 
   componentDidMount() {
