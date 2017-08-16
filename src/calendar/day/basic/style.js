@@ -20,6 +20,7 @@ export default function styleConstructor(theme={}) {
       marginTop: Platform.OS === 'android' ? (appStyle.dayAlignedTextMarginTopAndroid || 4) : (appStyle.dayAlignedTextMarginTopIos || 6)
     },
     selected: {
+      marginTop: appStyle.selectedContainerMarginTop || 0,
       borderColor: appStyle.selectedDayBackgroundColor,
       borderWidth: 2,
       borderRadius: 16
