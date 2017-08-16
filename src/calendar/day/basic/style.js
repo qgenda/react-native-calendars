@@ -10,7 +10,7 @@ export default function styleConstructor(theme={}) {
       alignItems: 'center'
     },
     text: {
-      marginTop: Platform.OS === 'android' ? (appStyle.dayAlignedTextMarginTopAndroid || 4) : (appStyle.dayAlignedTextMarginTopIos || 6),
+      marginTop: appStyle.dayTextMarginTop || 4,
       fontSize: 16,
       fontWeight: '300',
       color: appStyle.dayTextColor,
