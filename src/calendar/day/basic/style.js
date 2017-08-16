@@ -10,7 +10,7 @@ export default function styleConstructor(theme={}) {
       alignItems: 'center'
     },
     text: {
-      marginTop: 4,
+      marginTop: appStyle.dayTextMarginTop || 4,
       fontSize: 16,
       fontWeight: '300',
       color: appStyle.dayTextColor,
@@ -20,6 +20,7 @@ export default function styleConstructor(theme={}) {
       marginTop: Platform.OS === 'android' ? (appStyle.dayAlignedTextMarginTopAndroid || 4) : (appStyle.dayAlignedTextMarginTopIos || 6)
     },
     selected: {
+      marginTop: appStyle.selectedContainerMarginTop || 0,
       borderColor: appStyle.selectedDayBackgroundColor,
       borderWidth: 2,
       borderRadius: 16
