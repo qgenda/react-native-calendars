@@ -1,4 +1,4 @@
-import XDate from 'xdate';
+const XDate = require('xdate');
 
 function padNumber(n) {
   if (n < 10) {
@@ -7,16 +7,18 @@ function padNumber(n) {
   return n;
 }
 
-export function xdateToData(xdate) {
+function xdateToData(xdate) {
+  const dateString = xdate.toString('yyyy-MM-dd');
   return {
     year: xdate.getFullYear(),
     month: xdate.getMonth() + 1,
     day: xdate.getDate(),
-    timestamp: XDate(xdate.toString('yyyy-MM-dd'), true).getTime()
+    timestamp: XDate(dateString, true).getTime(),
+    dateString: dateString
   };
 }
 
-export function parseDate(d) {
+function parseDate(d) {
   if (!d) {
     return;
   } else if (d.timestamp) { // conventional data timestamp
@@ -33,3 +35,9 @@ export function parseDate(d) {
     return XDate(d, true);
   }
 }
+
+module.exports = {
+  xdateToData,
+  parseDate
+};
+

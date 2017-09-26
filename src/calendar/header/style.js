@@ -12,8 +12,9 @@ export default function(theme={}) {
       alignItems: 'center'
     },
     monthText: {
-      fontSize: 16,
       fontWeight: appStyle.monthFontWeight || '300',
+      fontSize: appStyle.textMonthFontSize,
+      fontFamily: appStyle.textMonthFontFamily,
       color: appStyle.monthTextColor,
       margin: 10
     },
@@ -40,7 +41,8 @@ export default function(theme={}) {
       marginBottom: 7,
       width: 32,
       textAlign: 'center',
-      fontSize: 13,
+      fontSize: appStyle.textDayHeaderFontSize,
+      fontFamily: appStyle.textDayHeaderFontFamily,
       color: appStyle.textSectionTitleColor
     }
   });

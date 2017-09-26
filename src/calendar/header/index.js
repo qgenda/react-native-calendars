@@ -1,10 +1,23 @@
 import React, { Component } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import XDate from 'xdate';
+import PropTypes from 'prop-types';
 import styleConstructor from './style';
 import { weekDayNames } from '../../dateutils';
 
 class CalendarHeader extends Component {
+  static propTypes = {
+    theme: PropTypes.object,
+    hideArrows: PropTypes.bool,
+    month: PropTypes.instanceOf(XDate),
+    addMonth: PropTypes.func,
+    showIndicator: PropTypes.bool,
+    firstDay: PropTypes.number,
+    renderArrow: PropTypes.func,
+    hideDayNames: PropTypes.bool,
+  };
+
   constructor(props) {
     super(props);
     this.style = styleConstructor(props.theme);
@@ -72,17 +85,20 @@ class CalendarHeader extends Component {
           {leftArrow}
           <View style={{ flexDirection: 'row' }}>
             <Text style={this.style.monthText}>
-              {this.props.month.toString('MMMM yyyy')}
+              {this.props.month.toString(this.props.monthFormat ? this.props.monthFormat : 'MMMM yyyy')}
             </Text>
             {indicator}
           </View>
           {rightArrow}
         </View>
-        <View style={this.style.week}>
-          {weekDaysNames.map(day => (
-            <Text key={day} style={this.style.dayHeader}>{day}</Text>
-          ))}
-        </View>
+        {
+          !this.props.hideDayNames &&
+          <View style={this.style.week}>
+            {weekDaysNames.map((day, idx) => (
+              <Text key={idx} style={this.style.dayHeader}>{day}</Text>
+            ))}
+          </View>
+        }
       </View>
     );
   }
