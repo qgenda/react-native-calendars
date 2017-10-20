@@ -19,7 +19,9 @@ export default function getStyle(theme={}) {
     },
     calendar: {
       paddingLeft: 15,
-      paddingRight: 15
+      paddingRight: 15,
+      alignItems: 'center',
+      justifyContent: 'center',
     }
   });
 }
