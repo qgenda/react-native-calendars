@@ -5,7 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import XDate from 'xdate';
 
-import {xdateToData, parseDate} from '../interface';
+import { xdateToData, parseDate } from '../interface';
 import styleConstructor from './style';
 import dateutils from '../dateutils';
 import Calendar from '../calendar';
@@ -28,7 +28,7 @@ class CalendarList extends Component {
 
   constructor(props) {
     super(props);
-    if(props.calendarHeight) {
+    if (props.calendarHeight) {
       calendarHeight = props.calendarHeight;
     }
     this.pastScrollRange = props.pastScrollRange === undefined ? 50 : props.pastScrollRange;
@@ -71,18 +71,23 @@ class CalendarList extends Component {
         break;
       }
     }
-    this.listView.scrollToOffset({offset: scrollAmount, animated});
+    this.listView.scrollToOffset({ offset: scrollAmount, animated });
   }
 
   scrollToMonth(m, animated) {
     const month = parseDate(m);
     const scrollTo = month || this.state.openDate;
-    let diffMonths = this.state.openDate.diffMonths(scrollTo);
+
+    // QGenda Change
+    var origStartOfMonth = this.state.openDate.clone().setDate(1);
+    var newStartOfMonth = month.clone().setDate(1);
+    let diffMonths = origStartOfMonth.diffMonths(newStartOfMonth);
     diffMonths = diffMonths < 0 ? Math.ceil(diffMonths) : Math.floor(diffMonths);
     const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
+
     //console.log(month, this.state.openDate);
     //console.log(scrollAmount, diffMonths);
-    this.listView.scrollToOffset({offset: scrollAmount, animated});
+    this.listView.scrollToOffset({ offset: scrollAmount, animated });
   }
 
   componentWillReceiveProps(props) {
@@ -107,7 +112,7 @@ class CalendarList extends Component {
     });
   }
 
-  onViewableItemsChanged({viewableItems}) {
+  onViewableItemsChanged({ viewableItems }) {
     function rowIsCloseToViewable(index, distance) {
       for (let i = 0; i < viewableItems.length; i++) {
         if (Math.abs(index - parseInt(viewableItems[i].index)) <= distance) {
@@ -141,12 +146,12 @@ class CalendarList extends Component {
     });
   }
 
-  renderCalendar({item}) {
+  renderCalendar({ item }) {
     return (<CalendarListItem item={item} calendarHeight={calendarHeight} {...this.props} />);
   }
 
   getItemLayout(data, index) {
-    return {length: calendarHeight, offset: calendarHeight * index, index};
+    return { length: calendarHeight, offset: calendarHeight * index, index };
   }
 
   getMonthIndex(month) {
