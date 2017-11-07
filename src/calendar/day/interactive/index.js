@@ -45,7 +45,7 @@ class Day extends Component {
       return true;
     }
 
-    return ['state', 'children', 'onPress'].reduce((prev, next) => {
+    return ['state', 'children', 'marked', 'onPress', 'markingExists'].reduce((prev, next) => {
       if (prev || nextProps[next] !== this.props[next]) {
         return true;
       }
