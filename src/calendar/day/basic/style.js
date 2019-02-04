@@ -26,6 +26,9 @@ export default function styleConstructor(theme={}) {
       borderWidth: 2,
       borderRadius: 16
     },
+    today: {
+      backgroundColor: appStyle.todayBackgroundColor
+    },
     todayText: {
       fontWeight: '500',
       color: appStyle.todayTextColor
