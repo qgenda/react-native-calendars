@@ -150,19 +150,21 @@ class Calendar extends Component {
     const maxDate = parseDate(this.props.maxDate);
     let state = '';
     let isToday = false;
-    if (this.isSelected(day)) {
-      state = 'selected';
-      if (dateutils.sameDate(day, XDate())) {
-        isToday = true;
-      }
-    } else if ((minDate && !dateutils.isGTE(day, minDate)) || (maxDate && !dateutils.isLTE(day, maxDate))) {
+    
+    if ((minDate && !dateutils.isGTE(day, minDate)) || (maxDate && !dateutils.isLTE(day, maxDate))) {
       state = 'disabled';
     } else if (!dateutils.sameMonth(day, this.state.currentMonth)) {
       state = 'disabled';
     } else if (dateutils.sameDate(day, XDate())) {
       state = 'today';
       isToday = true;
+    } else if (this.isSelected(day)) {
+      state = 'selected';
+      if (dateutils.sameDate(day, XDate())) {
+        isToday = true;
+      }
     }
+
     let dayComp;
     if (!dateutils.sameMonth(day, this.state.currentMonth) && this.props.hideExtraDays) {
       if (this.props.markingType === 'interactive') {
