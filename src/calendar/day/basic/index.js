@@ -59,16 +59,17 @@ class Day extends Component {
       textStyle.push(this.style.alignedText);
     }
 
-    if (this.props.state === 'selected' || marked.selected) {
+    if (this.props.state === 'today') {
+      containerStyle.push(this.style.today);
+      textStyle.push(this.style.todayText);
+    } else if (this.props.state === 'selected' || marked.selected) {
       containerStyle.push(this.style.selected);
       dotStyle.push(this.style.selectedDot);
       textStyle.push(this.props.isToday ? this.style.todayText : this.style.selectedText);
     } else if (this.props.state === 'disabled' || marked.disabled) {
       textStyle.push(this.style.disabledText);
-    } else if (this.props.state === 'today') {
-      containerStyle.push(this.style.today);
-      textStyle.push(this.style.todayText);
     }
+    
     return (
       <TouchableOpacity style={containerStyle} onPress={this.onDayPress}>
         <Text style={textStyle}>{String(this.props.children)}</Text>
