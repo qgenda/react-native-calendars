@@ -1,6 +1,8 @@
 import {StyleSheet, Platform} from 'react-native';
 import * as defaultStyle from '../../../style';
 
+const STYLESHEET_ID = 'stylesheet.day.basic';
+
 export default function styleConstructor(theme={}) {
   const appStyle = {...defaultStyle, ...theme};
   return StyleSheet.create({
@@ -10,12 +12,13 @@ export default function styleConstructor(theme={}) {
       alignItems: 'center'
     },
     text: {
-      marginTop: appStyle.dayTextMarginTop || 4,
+      marginTop: Platform.OS === 'android' ? 4 : 6,
       fontSize: appStyle.textDayFontSize,
       fontFamily: appStyle.textDayFontFamily,
-      fontWeight: '300',
+      fontWeight: appStyle.textDayFontWeight,
       color: appStyle.dayTextColor,
-      backgroundColor: 'rgba(255, 255, 255, 0)'
+      backgroundColor: 'rgba(255, 255, 255, 0)',
+      ...appStyle.textDayStyle
     },
     alignedText: {
       marginTop: Platform.OS === 'android' ? (appStyle.dayAlignedTextMarginTopAndroid || 4) : (appStyle.dayAlignedTextMarginTopIos || 6)
@@ -27,7 +30,8 @@ export default function styleConstructor(theme={}) {
       borderRadius: 16
     },
     today: {
-      backgroundColor: appStyle.todayBackgroundColor
+      backgroundColor: appStyle.todayBackgroundColor,
+      borderRadius: 16
     },
     todayText: {
       fontWeight: '500',
@@ -44,7 +48,8 @@ export default function styleConstructor(theme={}) {
       height: 4,
       marginTop: 1,
       borderRadius: 2,
-      opacity: 0
+      opacity: 0,
+      ...appStyle.dotStyle
     },
     visibleDot: {
       opacity: 1,
@@ -52,6 +57,13 @@ export default function styleConstructor(theme={}) {
     },
     selectedDot: {
       backgroundColor: appStyle.selectedDotColor
-    }
+    },
+    disabledDot: {
+      backgroundColor: appStyle.disabledDotColor || appStyle.dotColor
+    },
+    todayDot: {
+      backgroundColor: appStyle.todayDotColor || appStyle.dotColor
+    },
+    ...(theme[STYLESHEET_ID] || {})
   });
 }

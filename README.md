@@ -1,5 +1,11 @@
+**LOOKING FOR A MAINTAINER** <br>
+We love this project, but currently we don’t have enough time to work on it. So we are looking for a maintainer. If you have enough time and knowledge and want to become one - please let us know (levv@wix.com, ethans@wix.com)
+
+---
+
+
 # React Native Calendars ✨ 🗓️ 📆
-[![NPM Version](https://img.shields.io/npm/v/react-native-calendars.svg?style=flat)](https://www.npmjs.com/package/react-native-calendars)
+[![Version](https://img.shields.io/npm/v/react-native-calendars.svg)](https://www.npmjs.com/package/react-native-calendars)
 [![Build Status](https://travis-ci.org/wix/react-native-calendars.svg?branch=master)](https://travis-ci.org/wix/react-native-calendars)
 
 This module includes various customizable react native calendar components.
@@ -12,7 +18,6 @@ You can run example module by performing these steps:
 
 ```
 $ git clone git@github.com:wix/react-native-calendars.git
-$ cd react-native-calendars/example
 $ npm install
 $ react-native run-ios
 ```
@@ -31,7 +36,7 @@ The solution is implemented in JavaScript so no native module linking is require
 
 ## Usage
 
-`import {` [Calendar](#calendar), [CalendarList](#calendarlist), [Agenda](#agenda) `} from 'react-native-calendars';`
+`import {`[Calendar](#calendar), [CalendarList](#calendarlist), [Agenda](#agenda)`} from 'react-native-calendars';`
 
 All parameters for components are optional. By default the month of current local date will be displayed.
 
@@ -58,9 +63,9 @@ LocaleConfig.locales['fr'] = {
   monthNames: ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
   monthNamesShort: ['Janv.','Févr.','Mars','Avril','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'],
   dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
-  dayNamesShort: ['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.']
+  dayNamesShort: ['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'],
+  today: 'Aujourd\'hui'
 };
-
 LocaleConfig.defaultLocale = 'fr';
 ```
 
@@ -82,6 +87,8 @@ LocaleConfig.defaultLocale = 'fr';
   maxDate={'2012-05-30'}
   // Handler which gets executed on day press. Default = undefined
   onDayPress={(day) => {console.log('selected day', day)}}
+  // Handler which gets executed on day long press. Default = undefined
+  onDayLongPress={(day) => {console.log('selected day', day)}}
   // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
   monthFormat={'yyyy MM'}
   // Handler which gets executed when visible month changes in calendar. Default = undefined
@@ -92,13 +99,19 @@ LocaleConfig.defaultLocale = 'fr';
   renderArrow={(direction) => (<Arrow />)}
   // Do not show days of other months in month page. Default = false
   hideExtraDays={true}
-  // If hideArrows=false and hideExtraDays=false do not swich month when tapping on greyed out
+  // If hideArrows=false and hideExtraDays=false do not switch month when tapping on greyed out
   // day from another month that is visible in calendar page. Default = false
   disableMonthChange={true}
   // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
   firstDay={1}
   // Hide day names. Default = false
   hideDayNames={true}
+  // Show week numbers to the left. Default = false
+  showWeekNumbers={true}
+  // Handler which gets executed when press arrow icon left. It receive a callback can go back month
+  onPressArrowLeft={substractMonth => substractMonth()}
+  // Handler which gets executed when press arrow icon left. It receive a callback can go next month
+  onPressArrowRight={addMonth => addMonth()}
 />
 ```
 
@@ -116,14 +129,39 @@ Dot marking
 <Calendar
   // Collection of dates that have to be marked. Default = {}
   markedDates={{
-    '2012-05-16': {selected: true, marked: true},
+    '2012-05-16': {selected: true, marked: true, selectedColor: 'blue'},
     '2012-05-17': {marked: true},
-    '2012-05-18': {disabled: true}
+    '2012-05-18': {marked: true, dotColor: 'red', activeOpacity: 0},
+    '2012-05-19': {disabled: true, disableTouchEvent: true}
   }}
 />
 ```
 
-Interval marking
+You can customise a dot color for each day independently.
+
+Multi-Dot marking
+
+<kbd>
+ <img height=50 src="https://github.com/wix-private/wix-react-native-calendar/blob/master/demo/marking4.png?raw=true">
+</kbd>
+
+Use markingType = 'multi-dot' if you want to display more than one dot. Both the Calendar and CalendarList control support multiple dots by using 'dots' array in markedDates. The property 'color' is mandatory while 'key' and 'selectedColor' are optional. If key is omitted then the array index is used as key. If selectedColor is omitted then 'color' will be used for selected dates.
+```javascript
+const vacation = {key:'vacation', color: 'red', selectedDotColor: 'blue'};
+const massage = {key:'massage', color: 'blue', selectedDotColor: 'blue'};
+const workout = {key:'workout', color: 'green'};
+
+<Calendar
+  markedDates={{
+    '2017-10-25': {dots: [vacation, massage, workout], selected: true, selectedColor: 'red'},
+    '2017-10-26': {dots: [massage, workout], disabled: true}
+  }}
+  markingType={'multi-dot'}
+/>
+```
+
+
+Period marking
 
 <kbd>
   <img height=50 src="https://github.com/wix-private/wix-react-native-calendar/blob/master/demo/marking2.png?raw=true">
@@ -136,14 +174,82 @@ Interval marking
 ```javascript
 <Calendar
   // Collection of dates that have to be colored in a special way. Default = {}
-   markedDates={
-    {'2012-05-20': [{textColor: 'green'}],
-     '2012-05-22': [{startingDay: true, color: 'green'}],
-     '2012-05-23': [{endingDay: true, color: 'green', textColor: 'gray'}],
-     '2012-05-04': [{startingDay: true, color: 'green'}, {endingDay: true, color: 'green'}]
-    }}
-  // Date marking style [simple/interactive]. Default = 'simple'
-  markingType={'interactive'}
+  markedDates={{
+    '2012-05-20': {textColor: 'green'},
+    '2012-05-22': {startingDay: true, color: 'green'},
+    '2012-05-23': {selected: true, endingDay: true, color: 'green', textColor: 'gray'},
+    '2012-05-04': {disabled: true, startingDay: true, color: 'green', endingDay: true}
+  }}
+  // Date marking style [simple/period/multi-dot/custom]. Default = 'simple'
+  markingType={'period'}
+/>
+```
+
+Multi-period marking
+
+<kbd>
+  <img height=50 src="https://github.com/wix-private/wix-react-native-calendar/blob/master/demo/marking6.png?raw=true">
+</kbd>
+
+CAUTION: This marking is only fully supported by the `<Calendar />` component because it expands its height. Usage with `<CalendarList />` might lead to overflow issues.
+
+```javascript
+<Calendar
+  markedDates={{
+    '2017-12-14': {
+      periods: [
+        { startingDay: false, endingDay: true, color: '#5f9ea0' },
+        { startingDay: false, endingDay: true, color: '#ffa500' },
+        { startingDay: true, endingDay: false, color: '#f0e68c' },
+      ]
+    },
+    '2017-12-15': {
+      periods: [
+        { startingDay: true, endingDay: false, color: '#ffa500' },
+        { color: 'transparent' },
+        { startingDay: false, endingDay: false, color: '#f0e68c' },
+      ]
+    },
+  }}
+  // Date marking style [simple/period/multi-dot/custom]. Default = 'simple'
+  markingType='multi-period'
+/>
+```
+
+Custom marking allows you to customize each marker with custom styles.
+
+<kbd>
+  <img height=50 src="https://github.com/wix-private/wix-react-native-calendar/blob/master/demo/custom.png?raw=true">
+</kbd>
+
+```javascript
+<Calendar
+  // Date marking style [simple/period/multi-dot/single]. Default = 'simple'
+  markingType={'custom'}
+  markedDates={{
+    '2018-03-28': {
+      customStyles: {
+        container: {
+          backgroundColor: 'green'
+        },
+        text: {
+          color: 'black',
+          fontWeight: 'bold'
+        },
+      },
+    },
+    '2018-03-29': {
+      customStyles: {
+        container: {
+          backgroundColor: 'white',
+          elevation: 2
+        },
+        text: {
+          color: 'blue'
+        },
+      }
+    }
+  }}
 />
 ```
 
@@ -155,7 +261,7 @@ Keep in mind that different marking types are not compatible. You can use just o
   <img height=50 src="https://github.com/wix-private/wix-react-native-calendar/blob/master/demo/loader.png?raw=true">
 </kbd>
 
-The loading indicator next to month name will be displayed if `<Calendar />` has `displayLoadingIndicator` property and `markedDays` collection does not have a value for every day of the month in question. When you load data for days, just set `[]` or special marking value to all days in `markedDates` collection.
+The loading indicator next to month name will be displayed if `<Calendar />` has `displayLoadingIndicator` property and `markedDates` collection does not have a value for every day of the month in question. When you load data for days, just set `[]` or special marking value to all days in `markedDates` collection.
 
 #### Customizing look & feel
 
@@ -181,15 +287,68 @@ The loading indicator next to month name will be displayed if `<Calendar />` has
     selectedDotColor: '#ffffff',
     arrowColor: 'orange',
     monthTextColor: 'blue',
+    indicatorColor: 'blue',
     textDayFontFamily: 'monospace',
     textMonthFontFamily: 'monospace',
     textDayHeaderFontFamily: 'monospace',
+    textDayFontWeight: '300',
+    textMonthFontWeight: 'bold',
+    textDayHeaderFontWeight: '300',
     textDayFontSize: 16,
     textMonthFontSize: 16,
     textDayHeaderFontSize: 16
   }}
 />
 ```
+
+#### Advanced styling
+
+If you want to have complete control over calendar styles you can do it by overriding default style.js files. For example, if you want to override calendar header style first you have to find stylesheet id for this file:
+
+https://github.com/wix/react-native-calendars/blob/master/src/calendar/header/style.js#L4
+
+In this case it is 'stylesheet.calendar.header'. Next you can add overriding stylesheet to your theme with this id.
+
+https://github.com/wix/react-native-calendars/blob/master/example/src/screens/calendars.js#L56
+
+```javascript
+theme={{
+  arrowColor: 'white',
+  'stylesheet.calendar.header': {
+    week: {
+      marginTop: 5,
+      flexDirection: 'row',
+      justifyContent: 'space-between'
+    }
+  }
+}}
+```
+
+**Disclaimer**: issues that arise because something breaks after using stylesheet override will not be supported. Use this option at your own risk.
+
+#### Overriding day component
+
+If you need custom functionality not supported by current day component implementations you can pass your own custom day
+component to the calendar.
+
+```javascript
+<Calendar
+  style={[styles.calendar, {height: 300}]}
+  dayComponent={({date, state}) => {
+    return (<View style={{flex: 1}}><Text style={{textAlign: 'center', color: state === 'disabled' ? 'gray' : 'black'}}>{date.day}</Text></View>);
+  }}
+/>
+```
+
+The dayComponent prop has to receive a RN component or function that receive props. The day component will receive such props:
+
+* state - disabled if the day should be disabled (this is decided by base calendar component)
+* marking - markedDates value for this day
+* date - the date object representing this day
+
+**Tip:** Don't forget to implement shouldComponentUpdate for your custom day component to make calendar perform better
+
+If you implement an awesome day component please make a PR so that other people could use it :)
 
 ### CalendarList
 
@@ -209,6 +368,29 @@ The loading indicator next to month name will be displayed if `<Calendar />` has
   futureScrollRange={50}
   // Enable or disable scrolling of calendar list
   scrollEnabled={true}
+  // Enable or disable vertical scroll indicator. Default = false
+  showScrollIndicator={true}
+  ...calendarParams
+/>
+```
+
+#### Horizontal CalendarList
+
+<kbd>
+  <img src="https://github.com/wix-private/wix-react-native-calendar/blob/master/demo/horizontal-calendar-list.gif?raw=true">
+</kbd>
+
+You can also make the `CalendarList` scroll horizontally. To do that you need to pass specific props to the `CalendarList`:
+
+```javascript
+<CalendarList
+  // Enable horizontal scrolling, default = false
+  horizontal={true}
+  // Enable paging on horizontal, default = false
+  pagingEnabled={true}
+  // Set custom calendarWidth.
+  calendarWidth={320}
+  ...calendarListParams
   ...calendarParams
 />
 ```
@@ -225,14 +407,16 @@ An advanced agenda component that can display interactive listings for calendar 
   // the list of items that have to be displayed in agenda. If you want to render item as empty date
   // the value of date key kas to be an empty array []. If there exists no value for date key it is
   // considered that the date in question is not yet loaded
-  items={
-    {'2012-05-22': [{text: 'item 1 - any js object'}],
-     '2012-05-23': [{text: 'item 2 - any js object'}],
-     '2012-05-24': [],
-     '2012-05-25': [{text: 'item 3 - any js object'},{text: 'any js object'}],
-    }}
+  items={{
+    '2012-05-22': [{text: 'item 1 - any js object'}],
+    '2012-05-23': [{text: 'item 2 - any js object'}],
+    '2012-05-24': [],
+    '2012-05-25': [{text: 'item 3 - any js object'},{text: 'any js object'}]
+  }}
   // callback that gets called when items for a certain month should be loaded (month became visible)
   loadItemsForMonth={(month) => {console.log('trigger items loading')}}
+  // callback that fires when the calendar is opened or closed
+  onCalendarToggled={(calendarOpened) => {console.log(calendarOpened)}}
   // callback that gets called on day press
   onDayPress={(day)=>{console.log('day pressed')}}
   // callback that gets called when day changes while scrolling agenda list
@@ -255,6 +439,8 @@ An advanced agenda component that can display interactive listings for calendar 
   renderEmptyDate={() => {return (<View />);}}
   // specify how agenda knob should look like
   renderKnob={() => {return (<View />);}}
+  // specify what should be rendered instead of ActivityIndicator
+  renderEmptyData = {() => {return (<View />);}}
   // specify your item comparison function for increased performance
   rowHasChanged={(r1, r2) => {return r1.text !== r2.text}}
   // Hide knob button. Default = false
@@ -265,6 +451,12 @@ An advanced agenda component that can display interactive listings for calendar 
     '2012-05-17': {marked: true},
     '2012-05-18': {disabled: true}
   }}
+  // If provided, a standard RefreshControl will be added for "Pull to Refresh" functionality. Make sure to also set the refreshing prop correctly.
+  onRefresh={() => console.log('refreshing...')}
+  // Set this true while waiting for new data from a refresh
+  refreshing={false}
+  // Add a custom RefreshControl component, used to provide pull-to-refresh functionality for the ScrollView.
+  refreshControl={null}
   // agenda theme
   theme={{
     ...calendarTheme,

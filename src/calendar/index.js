@@ -1,88 +1,98 @@
-import React, { Component } from 'react';
-import {
-  View,
-  ViewPropTypes,
-} from 'react-native';
+import React, {Component} from 'react';
+import {View, ViewPropTypes} from 'react-native';
 import PropTypes from 'prop-types';
-
 import XDate from 'xdate';
+
 import dateutils from '../dateutils';
 import { xdateToData, parseDate } from '../interface';
 import styleConstructor from './style';
 import Day from './day/basic';
-import UnitDay from './day/interactive';
+import UnitDay from './day/period';
+import MultiDotDay from './day/multi-dot';
+import MultiPeriodDay from './day/multi-period';
+import SingleDay from './day/custom';
 import CalendarHeader from './header';
 import shouldComponentUpdate from './updater';
+import {SELECT_DATE_SLOT} from '../testIDs';
+
 
 //Fallback when RN version is < 0.44
 const viewPropTypes = ViewPropTypes || View.propTypes;
-
 const EmptyArray = [];
 
+/**
+ * @description: Calendar component
+ * @example: https://github.com/wix/react-native-calendars/blob/master/example/src/screens/calendars.js
+ * @gif: https://github.com/wix/react-native-calendars/blob/master/demo/calendar.gif
+ */
 class Calendar extends Component {
+  static displayName = 'Calendar';
+
   static propTypes = {
-    // Specify theme properties to override specific styles for calendar parts. Default = {}
+    /** Specify theme properties to override specific styles for calendar parts. Default = {} */
     theme: PropTypes.object,
-    // Collection of dates that have to be marked. Default = {}
+    /** Collection of dates that have to be marked. Default = {} */
     markedDates: PropTypes.object,
-
-    // Specify style for calendar container element. Default = {}
+    /** Specify style for calendar container element. Default = {} */
     style: viewPropTypes.style,
-
-    selected: PropTypes.array,
-
-    // Initially visible month. Default = Date()
+    /** Initially visible month. Default = Date() */
     current: PropTypes.any,
-    // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
+    /** Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined */
     minDate: PropTypes.any,
-    // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
+    /** Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined */
     maxDate: PropTypes.any,
-
-    // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
+    /** If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday. */
     firstDay: PropTypes.number,
-
-    // Date marking style [simple/interactive]. Default = 'simple'
+    /** Date marking style [simple/period/multi-dot/multi-period]. Default = 'simple' */
     markingType: PropTypes.string,
-
-    // Hide month navigation arrows. Default = false
+    /** Hide month navigation arrows. Default = false */
     hideArrows: PropTypes.bool,
-    // Display loading indicador. Default = false
+    /** Display loading indicador. Default = false */
     displayLoadingIndicator: PropTypes.bool,
-    // Do not show days of other months in month page. Default = false
+    /** Do not show days of other months in month page. Default = false */
     hideExtraDays: PropTypes.bool,
-
-    // Handler which gets executed on day press. Default = undefined
+    /** Handler which gets executed on day press. Default = undefined */
     onDayPress: PropTypes.func,
-    // Handler which gets executed when visible month changes in calendar. Default = undefined
+    /** Handler which gets executed on day long press. Default = undefined */
+    onDayLongPress: PropTypes.func,
+    /** Handler which gets executed when visible month changes in calendar. Default = undefined */
     onMonthChange: PropTypes.func,
     onVisibleMonthsChange: PropTypes.func,
-    // Replace default arrows with custom ones (direction can be 'left' or 'right')
+    /** Replace default arrows with custom ones (direction can be 'left' or 'right') */
     renderArrow: PropTypes.func,
-    // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
+    /** Provide custom day rendering component */
+    dayComponent: PropTypes.any,
+    /** Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting */
     monthFormat: PropTypes.string,
-    // Disables changing month when click on days of other months (when hideExtraDays is false). Default = false
+    /** Disables changing month when click on days of other months (when hideExtraDays is false). Default = false */
     disableMonthChange: PropTypes.bool,
-    //Hide day names. Default = false
-    hideDayNames: PropTypes.bool
+    /**  Hide day names. Default = false */
+    hideDayNames: PropTypes.bool,
+    /** Disable days by default. Default = false */
+    disabledByDefault: PropTypes.bool,
+    /** Show week numbers. Default = false */
+    showWeekNumbers: PropTypes.bool,
+    /** Handler which gets executed when press arrow icon left. It receive a callback can go back month */
+    onPressArrowLeft: PropTypes.func,
+    /** Handler which gets executed when press arrow icon left. It receive a callback can go next month */
+    onPressArrowRight: PropTypes.func,
+    /** Style passed to the header */
+    headerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number, PropTypes.array])
   };
 
   constructor(props) {
     super(props);
+    
     this.style = styleConstructor(this.props.theme);
-    let currentMonth;
-    if (props.current) {
-      currentMonth = parseDate(props.current);
-    } else {
-      currentMonth = props.selected && props.selected[0] ? parseDate(props.selected[0]) : XDate();
-    }
+    
     this.state = {
-      currentMonth
+      currentMonth: props.current ? parseDate(props.current) : XDate()
     };
 
     this.updateMonth = this.updateMonth.bind(this);
     this.addMonth = this.addMonth.bind(this);
-    this.isSelected = this.isSelected.bind(this);
     this.pressDay = this.pressDay.bind(this);
+    this.longPressDay = this.longPressDay.bind(this);
     this.shouldComponentUpdate = shouldComponentUpdate;
   }
 
@@ -114,7 +124,8 @@ class Calendar extends Component {
     });
   }
 
-  pressDay(day) {
+  _handleDayInteraction(date, interaction) {
+    const day = parseDate(date);
     const minDate = parseDate(this.props.minDate);
     const maxDate = parseDate(this.props.maxDate);
     if (!(minDate && !dateutils.isGTE(day, minDate)) && !(maxDate && !dateutils.isLTE(day, maxDate))) {
@@ -122,36 +133,31 @@ class Calendar extends Component {
       if (shouldUpdateMonth) {
         this.updateMonth(day);
       }
-      if (this.props.onDayPress) {
-        this.props.onDayPress(xdateToData(day));
+      if (interaction) {
+        interaction(xdateToData(day));
       }
     }
+  }
+
+  pressDay(date) {
+    this._handleDayInteraction(date, this.props.onDayPress);
+  }
+
+  longPressDay(date) {
+    this._handleDayInteraction(date, this.props.onDayLongPress);
   }
 
   addMonth(count) {
     this.updateMonth(this.state.currentMonth.clone().addMonths(count, true));
   }
 
-  isSelected(day) {
-    let selectedDays = [];
-    if (this.props.selected) {
-      selectedDays = this.props.selected;
-    }
-    for (let i = 0; i < selectedDays.length; i++) {
-      if (dateutils.sameDate(day, parseDate(selectedDays[i]))) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   renderDay(day, id) {
     const minDate = parseDate(this.props.minDate);
     const maxDate = parseDate(this.props.maxDate);
     let state = '';
-    let isToday = false;
-    
-    if ((minDate && !dateutils.isGTE(day, minDate)) || (maxDate && !dateutils.isLTE(day, maxDate))) {
+    if (this.props.disabledByDefault) {
+      state = 'disabled';
+    } else if ((minDate && !dateutils.isGTE(day, minDate)) || (maxDate && !dateutils.isLTE(day, maxDate))) {
       state = 'disabled';
     } else if (!dateutils.sameMonth(day, this.state.currentMonth)) {
       state = 'disabled';
@@ -165,38 +171,55 @@ class Calendar extends Component {
       }
     }
 
-    let dayComp;
     if (!dateutils.sameMonth(day, this.state.currentMonth) && this.props.hideExtraDays) {
-      if (this.props.markingType === 'interactive') {
-        dayComp = (<View key={id} style={{ flex: 1 }} />);
-      } else {
-        dayComp = (<View key={id} style={{ width: 32 }} />);
-      }
-    } else {
-      const DayComp = this.props.markingType === 'interactive' ? UnitDay : Day;
-      const markingExists = this.props.markedDates ? true : false;
-      dayComp = (
-        <DayComp
-            key={id}
-            state={state}
-            theme={this.props.theme}
-            onPress={this.pressDay}
-            day={day}
-            marked={this.getDateMarking(day)}
-            markingExists={markingExists}
-            isToday={isToday}
-          >
-            {day.getDate()}
-          </DayComp>
-        );
+      return (<View key={id} style={{flex: 1}}/>);
     }
-    return dayComp;
+
+    const DayComp = this.getDayComponent();
+    const date = day.getDate();
+    const dateAsObject = xdateToData(day);
+
+    return (
+      <View style={{flex: 1, alignItems: 'center'}} key={id}>
+        <DayComp
+          testID={`${SELECT_DATE_SLOT}-${dateAsObject.dateString}`}
+          state={state}
+          theme={this.props.theme}
+          onPress={this.pressDay}
+          onLongPress={this.longPressDay}
+          date={dateAsObject}
+          marking={this.getDateMarking(day)}
+        >
+          {date}
+        </DayComp>
+      </View>
+    );
+  }
+
+  getDayComponent() {
+    if (this.props.dayComponent) {
+      return this.props.dayComponent;
+    }
+
+    switch (this.props.markingType) {
+    case 'period':
+      return UnitDay;
+    case 'multi-dot':
+      return MultiDotDay;
+    case 'multi-period':
+      return MultiPeriodDay;
+    case 'custom':
+      return SingleDay;
+    default:
+      return Day;
+    }
   }
 
   getDateMarking(day) {
     if (!this.props.markedDates) {
       return false;
     }
+
     const dates = this.props.markedDates[day.toString('yyyy-MM-dd')] || EmptyArray;
     if (dates.length || dates) {
       return dates;
@@ -205,21 +228,30 @@ class Calendar extends Component {
     }
   }
 
+  renderWeekNumber (weekNumber) {
+    return <Day key={`week-${weekNumber}`} theme={this.props.theme} marking={{disableTouchEvent: true}} state='disabled'>{weekNumber}</Day>;
+  }
+
   renderWeek(days, id) {
     const week = [];
     days.forEach((day, id2) => {
       week.push(this.renderDay(day, id2));
     }, this);
+
+    if (this.props.showWeekNumbers) {
+      week.unshift(this.renderWeekNumber(days[days.length - 1].getWeek()));
+    }
+
     return (<View style={this.style.week} key={id}>{week}</View>);
   }
 
   render() {
-    //console.log('render calendar ');
     const days = dateutils.page(this.state.currentMonth, this.props.firstDay);
     const weeks = [];
     while (days.length) {
       weeks.push(this.renderWeek(days.splice(0, 7), weeks.length));
     }
+    
     let indicator;
     const current = parseDate(this.props.current);
     if (current) {
@@ -229,9 +261,11 @@ class Calendar extends Component {
         indicator = true;
       }
     }
+
     return (
       <View style={[this.style.container, this.props.style]}>
         <CalendarHeader
+          style={this.props.headerStyle}
           theme={this.props.theme}
           hideArrows={this.props.hideArrows}
           month={this.state.currentMonth}
@@ -241,8 +275,11 @@ class Calendar extends Component {
           renderArrow={this.props.renderArrow}
           monthFormat={this.props.monthFormat}
           hideDayNames={this.props.hideDayNames}
+          weekNumbers={this.props.showWeekNumbers}
+          onPressArrowLeft={this.props.onPressArrowLeft}
+          onPressArrowRight={this.props.onPressArrowRight}
         />
-        {weeks}
+        <View style={this.style.monthView}>{weeks}</View>
       </View>);
   }
 }
